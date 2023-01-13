@@ -13,6 +13,27 @@ func main() {
 		pola URL "/"
 	*/
 	mux := http.NewServeMux()
+
+	/*
+		Buat server file yang menangani file dari 
+		direktori "./ui/static". Perhatikan bahwa 
+		jalur yang diberikan ke fungsi http.Dir()
+		relatif terhadap proyek akar direktori.
+	*/
+
+	fileServer := http.FileServer(http.Dir("./ui/static"))
+
+	/*
+		Gunakan fungsi mux.Handle() untuk mendaftarkan 
+		server file sebagai handler untuk semua jalur
+		URL yang dimulai dengan "/static/". Untuk
+		jalur yang cocok, kami menghapus awalan
+		"/static" sebelum permintaan mencapai server
+		file.
+	*/
+	mux.Handle("/static/", http.StripPrefix("/static", fileServer))
+
+	// Daftar rute aplikasi seperti biasa
 	mux.HandleFunc("/", home)
 	mux.HandleFunc("/snippet/view", snippetView)
 	mux.HandleFunc("/snippet/create", snippetCreate)

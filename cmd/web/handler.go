@@ -1,7 +1,9 @@
 package main
 
-import(
+import (
 	"fmt"
+	"html/template"
+	"log"
 	"net/http"
 	"strconv"
 )
@@ -18,8 +20,58 @@ func home(w http.ResponseWriter, r *http.Request) {
 		http.NotFound(w, r)
 		return
 	}
-	
-	w.Write([]byte("Hello from Snippetbox"))
+
+	/*
+		Inisialisasi sebuah slice yang berisi path kedua file. Ini penting
+		perhatikan bahwa file yang berisi template dasar kita harus 
+		*Pertama* file dalam irisan.
+	*/
+
+	file := []string{
+		"./ui/html/base.tmpl",
+		"./ui/html/pages/home.tmpl",
+		"./ui/html/partials/nav.tmpl",
+	}
+
+	/*
+		Gunakan fungsi template.ParseFiles() untuk membaca file template 
+		menjadi set template. Jika ada kesalahan, kami mencatat pesan 
+		kesalahan mendetail dan menggunakannya fungsi http.Error() untuk
+		mengirim 500 Ineternal Server Error generik respon ke pengguna.
+		Perhatikan bahwa kita dapat melewatkan potongan file path sebagai
+		parameter variadik?
+	*/
+	ts, err := template.ParseFiles(file...)
+	if err != nil {
+		log.Print(err.Error())
+		http.Error(w, "Internal Server Error", 500)
+		return
+	}
+
+	/*
+		Kami kemudian menggunakan metode Execute() pada set template
+		untuk menulis konten template sebagai isi respon. Parameter 
+		terakhir untuk Execute() mewakili data dinamis apapun yang
+		kita berikan, yang untuk saat ini kita lakukan biarkan 
+		kosong.
+
+	*/
+	// err = ts.Execute(w, nil)
+	// if err != nil {
+	// 	log.Print(err.Error())
+	// 	http.Error(w, "Internal Server Error", 500)
+	// }	
+
+	/*
+		Gunakan metode ExecuteTemplate() untuk menulis kontent
+		"base" template sebagai badan respons.
+	*/
+	err = ts.ExecuteTemplate(w, "base", nil)
+	if err != nil {
+		log.Print(err.Error())
+		http.Error(w, "Internal Server Error", http.StatusInternalServerError)
+	}
+
 }
 
 // Menambah fungsi handler snippetView
