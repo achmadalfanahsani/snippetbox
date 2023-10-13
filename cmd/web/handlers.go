@@ -20,9 +20,9 @@ func (app *application) home(w http.ResponseWriter, r *http.Request) {
 		app.serverError(w, err)
 		return
 	}
-	
+
 	data := app.newTemplateData(r)
-	data.Snippets =snippets
+	data.Snippets = snippets
 
 	app.render(w, http.StatusOK, "home.tmpl.html", data)
 }
@@ -52,7 +52,7 @@ func (app *application) snippetView(w http.ResponseWriter, r *http.Request) {
 
 func (app *application) snippetCreate(w http.ResponseWriter, r *http.Request) {
 	if r.Method != http.MethodPost {
-		w.Header().Set("Allow", http.MethodPost)		
+		w.Header().Set("Allow", http.MethodPost)
 		app.clientError(w, http.StatusMethodNotAllowed)
 		return
 	}

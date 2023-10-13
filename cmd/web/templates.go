@@ -10,8 +10,8 @@ import (
 
 type templateData struct {
 	CurrentYear int
-	Snippet *models.Snippet
-	Snippets []*models.Snippet
+	Snippet     *models.Snippet
+	Snippets    []*models.Snippet
 }
 
 func humanDate(t time.Time) string {
@@ -23,7 +23,7 @@ var functions = template.FuncMap{
 }
 
 func newTemplateCache() (map[string]*template.Template, error) {
-	cache := map[string]*template.Template{}	
+	cache := map[string]*template.Template{}
 
 	pages, err := filepath.Glob("./ui/html/pages/*.tmpl.html")
 	if err != nil {

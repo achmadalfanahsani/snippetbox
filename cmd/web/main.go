@@ -8,21 +8,21 @@ import (
 	"net/http"
 	"os"
 
-	"snippetbox.achmadalfanahsani.com/internal/models"
 	_ "github.com/go-sql-driver/mysql"
+	"snippetbox.achmadalfanahsani.com/internal/models"
 )
 
 type application struct {
-	ErrorLog *log.Logger
-	InfoLog  *log.Logger
-	Snippets *models.SnippetModel
+	ErrorLog      *log.Logger
+	InfoLog       *log.Logger
+	Snippets      *models.SnippetModel
 	TemplateCache map[string]*template.Template
 }
 
 func main() {
 	addr := flag.String("addr", ":4000", "HTTP network address")
 	dsn := flag.String("dsn", "web:pass@/snippetbox?parseTime=true", "MySQL data source name")
-    
+
 	flag.Parse()
 
 	errorLog := log.New(os.Stderr, "ERROR\t", log.Ldate|log.Ltime|log.Lshortfile)
@@ -41,9 +41,9 @@ func main() {
 	}
 
 	app := &application{
-		ErrorLog: errorLog,
-		InfoLog:  infoLog,
-		Snippets: &models.SnippetModel{DB: db},
+		ErrorLog:      errorLog,
+		InfoLog:       infoLog,
+		Snippets:      &models.SnippetModel{DB: db},
 		TemplateCache: templateCache,
 	}
 
@@ -58,16 +58,15 @@ func main() {
 	errorLog.Fatal(err)
 }
 
-
 func openDB(dsn string) (*sql.DB, error) {
-		db, err := sql.Open("mysql", dsn)
-		if err != nil {
-			return nil, err
-		}
+	db, err := sql.Open("mysql", dsn)
+	if err != nil {
+		return nil, err
+	}
 
-		if err = db.Ping(); err != nil {
-			return nil, err
-		}
+	if err = db.Ping(); err != nil {
+		return nil, err
+	}
 
-		return db, nil
+	return db, nil
 }
