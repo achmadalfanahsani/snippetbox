@@ -54,11 +54,11 @@ func main() {
 	sessionManager.Lifetime = 12 * time.Hour
 
 	app := &application{
-		ErrorLog:      errorLog,
-		InfoLog:       infoLog,
-		Snippets:      &models.SnippetModel{DB: db},
-		TemplateCache: templateCache,
-		FormDecoder:   formDecoder,
+		ErrorLog:       errorLog,
+		InfoLog:        infoLog,
+		Snippets:       &models.SnippetModel{DB: db},
+		TemplateCache:  templateCache,
+		FormDecoder:    formDecoder,
 		SessionManager: sessionManager,
 	}
 
