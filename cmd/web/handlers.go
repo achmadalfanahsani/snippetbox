@@ -50,6 +50,13 @@ func (app *application) snippetView(w http.ResponseWriter, r *http.Request) {
 	app.render(w, http.StatusOK, "view.tmpl.html", data)
 }
 
+type snippetCreateForm struct {
+	Title   string `form:"title"`
+	Content string `form:"content"`
+	Expires int    `form:"expires"`
+	validator.Validator
+}
+
 func (app *application) snippetCreate(w http.ResponseWriter, r *http.Request) {
 	data := app.newTemplateData(r)
 	data.Form = snippetCreateForm{
@@ -57,13 +64,6 @@ func (app *application) snippetCreate(w http.ResponseWriter, r *http.Request) {
 	}
 
 	app.render(w, http.StatusOK, "create.tmpl.html", data)
-}
-
-type snippetCreateForm struct {
-	Title   string `form:"title"`
-	Content string `form:"content"`
-	Expires int    `form:"expires"`
-	validator.Validator
 }
 
 func (app *application) snippetCreatePost(w http.ResponseWriter, r *http.Request) {
@@ -181,7 +181,7 @@ func (app *application) userLoginPost(w http.ResponseWriter, r *http.Request) {
 	if !form.Valid() {
 		data := app.newTemplateData(r)
 		data.Form = form
-		app.render(w, http.StatusUnprocessableEntity, "login.tmpl.tmpl", data)
+		app.render(w, http.StatusUnprocessableEntity, "login.tmpl.html", data)
 		return
 	}
 
