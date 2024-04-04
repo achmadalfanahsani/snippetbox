@@ -10,6 +10,7 @@ import (
 
 func secureHeaders(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+
 		w.Header().Set("Content-Security-Policy",
 			"default-src 'self'; style-src 'self' fonts.googleapis.com; font-src fonts.gstatic.com")
 
@@ -24,7 +25,7 @@ func secureHeaders(next http.Handler) http.Handler {
 
 func (app *application) logRequest(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		app.InfoLog.Printf("%s - %s %s %s", r.RemoteAddr, r.Proto, r.Method, r.URL.RequestURI())
+		app.infoLog.Printf("%s - %s %s %s", r.RemoteAddr, r.Proto, r.Method, r.URL.RequestURI())
 
 		next.ServeHTTP(w, r)
 	})
@@ -69,13 +70,13 @@ func noSurf(next http.Handler) http.Handler {
 
 func (app *application) authenticate(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		id := app.SessionManager.GetInt(r.Context(), "authenticatedUserID")
+		id := app.sessionManager.GetInt(r.Context(), "authenticatedUserID")
 		if id == 0 {
 			next.ServeHTTP(w, r)
 			return
 		}
 
-		exists, err := app.Users.Exists(id)
+		exists, err := app.users.Exists(id)
 		if err != nil {
 			app.serverError(w, err)
 			return
