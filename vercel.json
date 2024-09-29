@@ -4,19 +4,12 @@
     {
       "src": "cmd/web/*.go",
       "use": "@vercel/go"
-    },
-    {
-      "src": "ui/static/*",
-      "use": "@vercel/static"
     }
   ],
   "routes": [
-    { "src": "/static/(.*)", "dest": "/ui/static/$1" },
-    { "src": "/(.*)", "dest": "cmd/web/main.go" }
-  ],
-  "env": {
-    "DSN": "your-database-dsn-here",
-    "CERT_PATH": "./tls/cert.pem",
-    "KEY_PATH": "./tls/key.pem"
-  }
+    {
+      "src": "/(.*)",
+      "dest": "cmd/web/main.go"
+    }
+  ]
 }

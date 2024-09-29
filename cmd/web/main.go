@@ -36,13 +36,6 @@ func main() {
 		log.Fatal("DSN is not set")
 	}
 
-	certPath := os.Getenv("CERT_PATH")
-	keyPath := os.Getenv("KEY_PATH")
-
-	if certPath == "" || keyPath == "" {
-		log.Fatal("TLS certificate or key path is not set")
-	}
-
 	flag.Parse()
 
 	infoLog := log.New(os.Stdout, "INFO\t", log.Ldate|log.Ltime)
@@ -92,7 +85,7 @@ func main() {
 	}
 
 	infoLog.Printf("Starting server on %s", *addr)
-	err = srv.ListenAndServeTLS("./tls/cert.pem", "./tls/key.pem")
+	err = srv.ListenAndServe()
 	errorLog.Fatal(err)
 }
 
