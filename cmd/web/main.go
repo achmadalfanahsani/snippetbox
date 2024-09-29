@@ -1,7 +1,6 @@
 package main
 
 import (
-	"crypto/tls"
 	"database/sql"
 	"flag"
 	"html/template"
@@ -28,24 +27,21 @@ type application struct {
 	sessionManager *scs.SessionManager
 }
 
-func main() {
-	addr := flag.String("addr", ":8080", "HTTP network address")
-	dsn := os.Getenv("DSN")
+var app *application
 
-	if dsn == "" {
-		log.Fatal("DSN is not set")
-	}
-
-	flag.Parse()
-
+func init() {
 	infoLog := log.New(os.Stdout, "INFO\t", log.Ldate|log.Ltime)
 	errorLog := log.New(os.Stderr, "ERROR\t", log.Ldate|log.Ltime|log.Lshortfile)
+
+	dsn := os.Getenv("DSN")
+	if dsn == "" {
+		errorLog.Fatal("DSN is not set")
+	}
 
 	db, err := openDB(dsn)
 	if err != nil {
 		errorLog.Fatal(err)
 	}
-	defer db.Close()
 
 	templateCache, err := newTemplateCache()
 	if err != nil {
@@ -57,10 +53,9 @@ func main() {
 	sessionManager := scs.New()
 	sessionManager.Store = mysqlstore.New(db)
 	sessionManager.Lifetime = 12 * time.Hour
-
 	sessionManager.Cookie.Secure = true
 
-	app := &application{
+	app = &application{
 		errorLog:       errorLog,
 		infoLog:        infoLog,
 		snippets:       &models.SnippetModel{DB: db},
@@ -69,24 +64,29 @@ func main() {
 		formDecoder:    formDecoder,
 		sessionManager: sessionManager,
 	}
+}
 
-	tlsConfig := &tls.Config{
-		CurvePreferences: []tls.CurveID{tls.X25519, tls.CurveP256},
-	}
+// Handler is the entry point for Vercel
+func Handler(w http.ResponseWriter, r *http.Request) {
+	app.routes().ServeHTTP(w, r)
+}
+
+func main() {
+	addr := flag.String("addr", ":8080", "HTTP network address")
+	flag.Parse()
 
 	srv := &http.Server{
 		Addr:         *addr,
-		ErrorLog:     errorLog,
+		ErrorLog:     app.errorLog,
 		Handler:      app.routes(),
-		TLSConfig:    tlsConfig,
 		IdleTimeout:  time.Minute,
 		ReadTimeout:  5 * time.Second,
 		WriteTimeout: 10 * time.Second,
 	}
 
-	infoLog.Printf("Starting server on %s", *addr)
-	err = srv.ListenAndServe()
-	errorLog.Fatal(err)
+	app.infoLog.Printf("Starting server on %s", *addr)
+	err := srv.ListenAndServe()
+	app.errorLog.Fatal(err)
 }
 
 func openDB(dsn string) (*sql.DB, error) {
