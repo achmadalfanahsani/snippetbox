@@ -30,7 +30,18 @@ type application struct {
 
 func main() {
 	addr := flag.String("addr", ":8080", "HTTP network address")
-	dsn := flag.String("dsn", "snippetbox_planningmy:5c922c314874963373e8d481cf545bc438bdec9f@tcp(r55.h.filess.io:3307)/snippetbox_planningmy?parseTime=true", "MySQL data source name")
+	dsn := os.Getenv("DSN")
+
+	if dsn == "" {
+		log.Fatal("DSN is not set")
+	}
+
+	certPath := os.Getenv("CERT_PATH")
+	keyPath := os.Getenv("KEY_PATH")
+
+	if certPath == "" || keyPath == "" {
+		log.Fatal("TLS certificate or key path is not set")
+	}
 
 	flag.Parse()
 
